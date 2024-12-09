@@ -20,9 +20,9 @@
             </li>
             <li class="nav-item nav-category">Menu</li>
             <li class="nav-item ">
-                <a href="#" class="nav-link">
+                <a href="{{ route('employees.index') }}" class="nav-link">
                     <i class="link-icon" data-feather="users"></i>
-                    <span class="link-title">Customers</span>
+                    <span class="link-title">Employees</span>
                 </a>
             </li>
         </ul>
