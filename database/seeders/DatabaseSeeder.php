@@ -25,16 +25,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(EmployeeSeeder::class);
-        $this->call(MeetingSeeder::class);
+        // $this->call(MeetingSeeder::class);
 
-        $employee1 = Employee::find(1);
-        $employee2 = Employee::find(2);
+        // $employee1 = Employee::find(1);
+        // $employee2 = Employee::find(2);
     
-        $meeting1 = Meeting::find(1);
-        $meeting2 = Meeting::find(2);
+        // $meeting1 = Meeting::find(1);
+        // $meeting2 = Meeting::find(2);
     
-        // Attaching employees to meetings
-        $meeting1->employees()->attach([$employee1->id, $employee2->id]);
-        $meeting2->employees()->attach([$employee1->id]);
+        // // Attaching employees to meetings
+        // $meeting1->employees()->attach([$employee1->id, $employee2->id]);
+        // $meeting2->employees()->attach([$employee1->id]);
     }
 }

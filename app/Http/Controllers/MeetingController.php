@@ -10,72 +10,60 @@ class MeetingController extends Controller
 {
     public function showCalendar()
     {
-        $participents = Employee::all();
-        $meetings = Meeting::with('employees')->get();
-        return view('calendar.access', compact('meetings', 'participents')); // A form to input the token
+        $employees = Employee::all();
+        $meetings = Meeting::with('participants')->get();
+
+        return view('calendar.access', compact('meetings', 'employees'));
     }
 
-    public function getMeetings()
+    public function index()
     {
-        // Get all meetings from the database
         $meetings = Meeting::all();
-        return response()->json($meetings);
+
+        $transformedMeetings = $meetings->map(function ($meeting) {
+            $organizer = Employee::find($meeting->organizer);
+
+            $participantIds = json_decode($meeting->participants, true);
+            $participantNames = $participantIds
+                ? Employee::whereIn('id', $participantIds)->pluck('name')->toArray()
+                : [];
+
+            return [
+                'id' => $meeting->id,
+                'title' => $meeting->title,
+                'start' => $meeting->start_time,
+                'end' => $meeting->end_time,
+                'organizer' => $organizer->name,
+                'participants' => $participantNames,
+            ];
+        });
+
+        return response()->json($transformedMeetings);
     }
 
-    public function addMeeting(Request $request)
+    public function store(Request $request)
     {
-        // Validate the input
-        $request->validate([
-            'title' => 'required',
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
             'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-            'organizer' => 'required',
-            'participants' => 'required|array',
+            'end_time' => 'required|date|after_or_equal:start_time',
+            'organizer' => 'required|exists:employees,id',
+            'participants' => 'required|array|min:1',
+            'participants.*' => 'exists:employees,id',
         ]);
 
-        // Check for overlapping meetings
-        $overlap = Meeting::where(function ($query) use ($request) {
-            $query->whereBetween('start_time', [$request->start_time, $request->end_time])
-                ->orWhereBetween('end_time', [$request->start_time, $request->end_time])
-                ->orWhere(function ($query) use ($request) {
-                    $query->where('start_time', '<', $request->start_time)
-                        ->where('end_time', '>', $request->end_time);
-                });
-        })->exists();
+        try {
+            Meeting::create([
+                'title' => $validatedData['title'],
+                'start_time' => $validatedData['start_time'],
+                'end_time' => $validatedData['end_time'],
+                'organizer' => $validatedData['organizer'],
+                'participants' => json_encode($validatedData['participants']),
+            ]);
 
-        if ($overlap) {
-            return response()->json(['error' => 'This time slot is already taken.'], 400);
+            return redirect()->route('calendar.access');
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
-
-        // Create the new meeting
-        $meeting = Meeting::create([
-            'title' => $request->title,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'organizer' => $request->organizer,
-            'participants' => json_encode($request->participants),
-        ]);
-
-        return response()->json($meeting);
     }
-
-    public function getMeetingDetails($id)
-    {
-        // Get the details of a single meeting
-        $meeting = Meeting::findOrFail($id);
-        return response()->json($meeting);
-    }
-
-    // public function validateToken(Request $request)
-    // {
-    //     $request->validate(['token' => 'required']);
-    //     $admin = User::where('meeting_access_token', $request->token)->first();
-
-    //     if ($admin) {
-    //         session(['access_granted' => true]);
-    //         return redirect()->route('calendar.view');
-    //     }
-
-    //     return back()->withErrors(['token' => 'Invalid token.']);
-    // }
 }

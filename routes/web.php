@@ -8,13 +8,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/calendar', [MeetingController::class, 'showCalendar'])->name('calendar');
-// Route::post('/calendar/access', [MeetingController::class, 'validateToken'])->name('calendar.access');
-Route::get('/api/meetings', [MeetingController::class, 'getMeetings'])->name('api.meetings');
+Route::get('/calendar', [MeetingController::class, 'showCalendar'])->name('calendar.access');
 
-Route::get('/meetings', 'MeetingController@getMeetings'); // Get meetings for the calendar
-Route::post('/meetings', 'MeetingController@addMeeting'); // Add a new meeting
-Route::get('/meetings/{id}', 'MeetingController@getMeetingDetails'); // Get details of a meeting
+Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index'); // Fetch events
+Route::post('/meetings', [MeetingController::class, 'store'])->name('meetings.store'); // Add new event
 
 Route::get('/dashboard', function () {
     return view('dashboard');

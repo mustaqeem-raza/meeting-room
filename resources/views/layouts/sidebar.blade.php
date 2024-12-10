@@ -19,7 +19,7 @@
                 </a>
             </li>
             <li class="nav-item nav-category">Menu</li>
-            <li class="nav-item ">
+            <li class="nav-item {{ request()->is('employees*') ? 'active' : '' }}">
                 <a href="{{ route('employees.index') }}" class="nav-link">
                     <i class="link-icon" data-feather="users"></i>
                     <span class="link-title">Employees</span>

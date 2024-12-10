@@ -10,11 +10,12 @@ class Meeting extends Model
 
     protected $fillable = [ 'title', 'organizer', 'start_time', 'end_time', 'participants' ];
     
-    protected $casts = [
-        'participants' => 'array', // Convert the participants field to an array
-    ];
-
-    public function employees()
+    public function organizer()
+    {
+        return $this->belongsTo(Employee::class, 'organizer', 'id');
+    }
+    
+    public function participants()
     {
         return $this->belongsToMany(Employee::class, 'employee_meeting', 'meeting_id', 'employee_id');
     }

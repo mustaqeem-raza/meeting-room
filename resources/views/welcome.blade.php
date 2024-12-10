@@ -21,7 +21,7 @@
                 <div class="row w-100 mx-0 auth-page">
                     <!-- Access Calendar Button aligned above the login form -->
                     <div class="col-12 text-center mb-4">
-                        <a href="{{ route('calendar') }}" class="btn btn-primary">
+                        <a href="{{ route('calendar.access') }}" class="btn btn-primary">
                             Access Calendar
                         </a>
                     </div>
